@@ -44,18 +44,14 @@ pipeline {
             }
         }
 
-        stage('Docker Run Image') {
+        stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([
-                    sshUserPrivateKey(
-                        credentialsId: 'dockerkey',
-                        keyFileVariable: 'FILENAME',
-                        usernameVariable: 'USERNAME'
-                    )
+                withKubeConfig([
+                  credentialsId: 'myapikey',
+                  serverUrl: 'https://kubernetes:6443'
                 ]) {
-                    sh "ssh -o StrictHostKeyChecking=no -i ${FILENAME} ${USERNAME}@docker 'docker stop myapp || true'"
-                    sh "ssh -o StrictHostKeyChecking=no -i ${FILENAME} ${USERNAME}@docker 'docker rm myapp || true'"
-                    sh "ssh -o StrictHostKeyChecking=no -i ${FILENAME} ${USERNAME}@docker 'docker run --name myapp --pull always --detach --publish 4444:4444 ttl.sh/myapp:2h'"
+                    sh 'kubectl apply -f deployment.yaml'
+                    sh 'kubectl apply -f service.yaml'
                 }
             }
         }
