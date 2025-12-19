@@ -31,10 +31,10 @@ pipeline {
                     sh '''
                     scp -o StrictHostKeyChecking=no -i ${FILENAME} -r \
                         index.js package.json node_modules \
-                        ${USERNAME}@TARGET_IP:~/myapp
+                        ${USERNAME}@target:~/myapp
 
                     ssh -o StrictHostKeyChecking=no -i ${FILENAME} \
-                        ${USERNAME}@TARGET_IP "cd ~/myapp && nohup node index.js &"
+                        ${USERNAME}@target "cd ~/myapp && nohup node index.js &"
                     '''
                 }
             }
