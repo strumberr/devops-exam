@@ -48,7 +48,7 @@ pipeline {
             steps {
                 withCredentials([
                     sshUserPrivateKey(
-                        credentialsId: 'mykey',
+                        credentialsId: 'dockerkey',
                         keyFileVariable: 'FILENAME',
                         usernameVariable: 'USERNAME'
                     )
