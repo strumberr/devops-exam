@@ -45,18 +45,13 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-    steps {
-        withCredentials([string(credentialsId: 'myapikey', variable: 'KUBECONFIG_TEXT')]) {
-            sh '''
-              echo "$KUBECONFIG_TEXT" > kubeconfig.yaml
-              export KUBECONFIG=$PWD/kubeconfig.yaml
-
-              kubectl apply -f deployment.yaml
-              kubectl apply -f service.yaml
-            '''
+            steps {
+                 withKubeConfig([credentialsId: 'myapikey', serverUrl: 'https://kubernetes:6443']) {
+                  sh 'kubectl apply -f deployment.yaml'
+                  sh 'kubectl apply -f service.yaml'
+                }
+            }
         }
-    }
-}
 
 
     }
