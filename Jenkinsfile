@@ -19,28 +19,30 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Deploy') {
             steps {
-                sh 'docker build . --tag myapp:latest'
-            }
-        }
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'mykey',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'USERNAME'
+                    )
+                ]) {
+                    sh '''
+                    mkdir -p ~/.ssh
+                    ssh-keyscan -H target >> ~/.ssh/known_hosts
 
-        stage('Push to ttl.sh') {
-            steps {
-                sh '''
-                IMAGE="ttl.sh/myapp:2h"
+                    scp -i $SSH_KEY -r \
+                        index.js \
+                        package.json \
+                        node_modules \
+                        $USERNAME@target:~/myapp
 
-                docker tag myapp:latest $IMAGE
-                docker push $IMAGE
+                    ssh -i $SSH_KEY $USERNAME@target "pkill -f index.js || true"
 
-                echo $IMAGE > image.txt
-                '''
-            }
-        }
-
-        stage('Show Image') {
-            steps {
-                sh "echo 'Image pushed:' && cat image.txt"
+                    ssh -i $SSH_KEY $USERNAME@target "cd ~/myapp && nohup node index.js > app.log 2>&1 &"
+                    '''
+                }
             }
         }
     }
