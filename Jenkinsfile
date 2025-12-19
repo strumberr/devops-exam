@@ -24,32 +24,20 @@ pipeline {
                 withCredentials([
                     sshUserPrivateKey(
                         credentialsId: 'mykey',
-                        keyFileVariable: 'SSH_KEY',
+                        keyFileVariable: 'FILENAME',
                         usernameVariable: 'USERNAME'
                     )
                 ]) {
                     sh '''
-                    set -e
+                    scp -o StrictHostKeyChecking=no -i ${FILENAME} -r \
+                        index.js package.json node_modules \
+                        ${USERNAME}@TARGET_IP:~/myapp
 
-                    mkdir -p ~/.ssh
-                    ssh-keyscan -H target >> ~/.ssh/known_hosts
-
-                    scp -i $SSH_KEY -r \
-                        index.js \
-                        package.json \
-                        node_modules \
-                        $USERNAME@target:~/myapp
-
-                    ssh -i $SSH_KEY $USERNAME@target "pkill -f index.js || true"
-
-                    ssh -i $SSH_KEY $USERNAME@target "
-                    cd ~/myapp &&
-                    nohup node index.js > app.log 2>&1 &
-                    "
+                    ssh -o StrictHostKeyChecking=no -i ${FILENAME} \
+                        ${USERNAME}@TARGET_IP "cd ~/myapp && nohup node index.js &"
                     '''
                 }
             }
         }
-
     }
 }
