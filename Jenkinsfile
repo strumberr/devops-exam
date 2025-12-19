@@ -50,14 +50,11 @@ pipeline {
                 credentialsId: 'myapikey',
                 serverUrl: 'https://kubernetes:6443'
                 ]) {
-                sh 'kubectl apply -f deployment.yaml'
-                sh 'kubectl apply -f service.yaml'
+                    sh 'kubectl apply -f deployment.yaml'
+                    sh 'kubectl apply -f service.yaml'
                 }
             }
         }
-
-
-
 
 
     }
