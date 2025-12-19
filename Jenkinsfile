@@ -29,6 +29,8 @@ pipeline {
                     )
                 ]) {
                     sh '''
+                    set -e
+
                     mkdir -p ~/.ssh
                     ssh-keyscan -H target >> ~/.ssh/known_hosts
 
@@ -40,10 +42,14 @@ pipeline {
 
                     ssh -i $SSH_KEY $USERNAME@target "pkill -f index.js || true"
 
-                    ssh -i $SSH_KEY $USERNAME@target "cd ~/myapp && nohup node index.js > app.log 2>&1 &"
+                    ssh -i $SSH_KEY $USERNAME@target "
+                    cd ~/myapp &&
+                    nohup node index.js > app.log 2>&1 &
+                    "
                     '''
                 }
             }
         }
+
     }
 }
