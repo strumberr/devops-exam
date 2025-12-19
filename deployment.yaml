@@ -1,19 +1,12 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
   name: myapp
+  labels:
+    app: myapp
 spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: myapp
-  template:
-    metadata:
-      labels:
-        app: myapp
-    spec:
-      containers:
-        - name: myapp
-          image: ttl.sh/myapp:2h   # MUST match what Jenkins pushes
-          ports:
-            - containerPort: 4444
+  containers:
+    - name: myapp
+      image: ttl.sh/myapp:2h
+      ports:
+        - containerPort: 4444
